@@ -24,7 +24,7 @@ class TestFBPPort(unittest.TestCase):
         pass
 
     def test_port(self):
-        print "test port"
+        print("test port")
         aport = Port("aport")
         self.assertEqual(aport.name, "aport")
         self.assertEqual(aport.type, "String")
@@ -32,10 +32,10 @@ class TestFBPPort(unittest.TestCase):
         aport.value = "new value"
         self.assertEqual(aport.value, "new value")
 
-        print aport
+        print(aport)
 
     def test_in_port(self):
-        print "test in port"
+        print("test in port")
         aport = Inport("aport")
         self.assertEqual(aport.name, "aport")
         self.assertEqual(aport.type, "String")
@@ -46,10 +46,10 @@ class TestFBPPort(unittest.TestCase):
         aport.value = "new value"
         self.assertEqual(aport.value, "new value")
 
-        print aport
+        print(aport)
 
     def test_port_link(self):
-        print "test port link"
+        print("test port link")
         aport = Inport("in_port")
         bport = Outport("out_port")
 
@@ -59,8 +59,8 @@ class TestFBPPort(unittest.TestCase):
         self.assertEqual(aport.value, "new value")
         self.assertEqual(bport.value, "new value")
 
-        print aport
-        print bport
+        print(aport)
+        print(bport)
 
 
 if __name__ == '__main__':

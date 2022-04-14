@@ -120,7 +120,7 @@ class TestFBPRepository(unittest.TestCase):
             time.sleep(0.1)
 
         # print bnode.get_outport_value()
-        print repo.domains()
+        print(repo.domains())
 
     def test_respository2(self):
         repo = fbp.repository()
@@ -137,12 +137,12 @@ class TestFBPRepository(unittest.TestCase):
             time.sleep(0.1)
 
         # print anode.get_outport_value('json')
-        print repo.domains()
+        print(repo.domains())
 
     #@unittest.skip("")
     def test_respository3(self):
         repo = fbp.repository()
-        print repo.dumps("./repo.json")
+        print(repo.dumps("./repo.json"))
 
     #@unittest.skip("")
     def test_respository4(self):

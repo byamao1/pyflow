@@ -2,7 +2,7 @@
 
 import traceback, pdb
 
-from port import Inport, Outport
+from fbp.port import Inport, Outport
 
 OUTPORT_DEFAULT_NAME = "out"
 
@@ -19,9 +19,6 @@ class Node(object):
         self._name = name
         self._spec = spec
         self._port_spec = spec.get("port")
-        # Tricky and Non-Secure eval
-        exec(spec.get("func"))
-        self._func = func
 
         self._inputports = dict()
         self._outputports = dict()
@@ -29,6 +26,13 @@ class Node(object):
         self._is_cache_valid = False
         self._status = STATUS_INIT
         self._error = None
+
+    def generate_node_func(self):
+        # Tricky and Non-Secure eval
+        global_env = {}
+        local_env = {}
+        exec(self._spec.get("func"), )
+        self._func = locals()['func']
 
     @property
     def name(self):

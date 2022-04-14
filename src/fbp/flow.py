@@ -3,7 +3,7 @@ from multiprocessing import Process, Manager
 from multiprocessing.managers import BaseManager
 import sys
 import json
-from node import Node
+from fbp.node import Node
 
 
 EXEC_MODE_BATCH = "batch"
@@ -90,6 +90,10 @@ class Flow(object):
         if self._nodes.get(node_id) is not None:
             del self._nodes[node_id]
 
+    def generate_node_func(self):
+        for n in self._nodes.values():
+            n.generate_node_func()
+
     def link(self, source_node_id, source_port_name, target_node_id, target_port_name):
 
         # TODO : link should do data transfer if source port contains data
@@ -130,13 +134,13 @@ class Flow(object):
         self._links[target_label] = Path(
             source_node, source_port, target_node, target_port)
 
-    def unlink(self, target_node_id, target_port_name):
-        target_label = target_node_id + ":" + target_port_name
-        link_to_target = self._links.get(target_label)
-        if link_to_target is not None:
-            link_to_target.source_port.un_point_to(link_to_target.target_port)
-            link_to_target.target_port.point_from(None)
-            del self._links[target]
+    # def unlink(self, target_node_id, target_port_name):
+    #     target_label = target_node_id + ":" + target_port_name
+    #     link_to_target = self._links.get(target_label)
+    #     if link_to_target is not None:
+    #         link_to_target.source_port.un_point_to(link_to_target.target_port)
+    #         link_to_target.target_port.point_from(None)
+    #         del self._links[target]
 
     def get_links(self):
         return self._links
@@ -167,6 +171,9 @@ class Flow(object):
             new_children = []
 
     def _run_batch(self, end_node, stat):
+        # Generate func of all nodes in flow
+        self.generate_node_func()
+
         nodemap = [end_node]
         self._find_source_nodes(end_node, nodemap)
         while True:
@@ -174,7 +181,7 @@ class Flow(object):
                 break
             anode = nodemap.pop()
             node_value = anode.get_node_value()
-            
+
             dep_nodes = list()
             find_failure = False
             for n in self._find_dependant_nodes(anode, dep_nodes):
@@ -196,7 +203,7 @@ class Flow(object):
                 node_value = anode.get_node_value()
                 node_value["status"] = "fail"
                 node_value["error"] = str(e)
-            finally :
+            finally:
                 stat.append_stat(node_value)
 
         stat.set_stat(True)

@@ -2,9 +2,9 @@
 import json
 import time
 
-from node import Node
-from flow import Flow
-from repository import repository
+from fbp.node import Node
+from fbp.flow import Flow
+from fbp.repository import repository
 
 
 __version_info__ = (0, 0, 1)
@@ -68,8 +68,8 @@ def _run_flow(flow_spec):
 
 
 def run_flow(flow_spec):
-    stats = _run_flow(flow_spec)
+    stat = _run_flow(flow_spec)
     # TODO : support run in async mode
-    while not stats.check_stat():
+    while not stat.check_stat():
         time.sleep(0.1)
-    return [i for i in stats.result()]
+    return [i for i in stat.result()]
