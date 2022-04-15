@@ -124,7 +124,7 @@ PyFlow Web UI leverages [jsplumb](https://jsplumbtoolkit.com/) to provide flow b
 install dependecny for front end code
 ```
 cd /src/static
-yarn install
+npm install     # or yarn install
 ```
 and start the server
 ```
@@ -135,7 +135,7 @@ then open `http://localhost:5000` for the pyflow web UI
 
 ## Run with docker
 ```
-docker run -P naughtytao/pyflow:latest
+docker run -td -p 5000:5000 naughtytao/pyflow:latest
 ```
 
 ## Docker Build and Run
