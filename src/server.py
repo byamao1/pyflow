@@ -1,26 +1,42 @@
 import traceback
 
-from flask import Flask
-from flask import request
-from flask import jsonify
+from fastapi import FastAPI, WebSocket
+from fastapi.requests import Request
 
 import os
 import json
+
+from starlette import status
+from starlette.responses import JSONResponse
+from starlette.staticfiles import StaticFiles
 
 import nodemaker
 import fbp
 
 from fbp.port import Port
 
-app = Flask(__name__, static_url_path="")
+app = FastAPI()
 
 
-@app.route("/")
-def index():
-    return app.send_static_file("index.html")
+staticFiles = StaticFiles(directory="static")
 
 
-@app.route("/nodestree", methods=['GET'])
+@app.middleware("http")
+async def add_filter(request: Request, call_next):
+    import logging
+    try:
+        response = await call_next(request)
+    except Exception as e:
+        logging.exception(e)
+    return response
+
+
+@app.get("/")
+async def index(request: Request):
+    return await staticFiles.get_response('index.html', request.scope)
+
+
+@app.get("/nodestree")
 def nodestree():
     tree = list()
     repository = fbp.repository()
@@ -28,12 +44,12 @@ def nodestree():
 
     for k, v in node_specs.iteritems():
         _insert(tree, v)
-    return jsonify(tree)
+    return tree
 
 
 def _insert(treeroot, node):
-    id = node["id"]
-    ids = id.split(".")
+    node_id = node["id"]
+    ids = node_id.split(".")
     found = False
 
     for n in treeroot:
@@ -75,105 +91,123 @@ def _inset_node(parent, node, path):
     return
 
 
-@app.route("/nodes", methods=['GET', 'POST'])
+@app.get("/nodes")
 def nodes():
     repository = fbp.repository()
-    if request.method == 'POST':
-        node = request.get_json()
-        repository.register("nodespec", node["id"], node)
-        return jsonify(node), 200, {'ContentType': 'application/json'}
-    else:
-        node_specs = repository.get("nodespec")
+    node_specs = repository.get("nodespec")
 
-        if not node_specs:
-            return jsonify({}), 200, {'ContentType': 'application/json'}
+    if not node_specs:
+        return {}
 
-        # Adding default output when it is not there
-        for k, v in node_specs.items():
-            if "output" not in v["port"]:
-                v["port"]["output"] = list()
-                v["port"]["output"].append({"name": "out"})
+    # Adding default output when it is not there
+    for k, v in node_specs.items():
+        if "output" not in v.get("port", []):
+            v["port"]["output"] = list()
+            v["port"]["output"].append({"name": "out"})
 
-        return jsonify(node_specs), 200, {'ContentType': 'application/json'}
+    return node_specs
 
 
-@app.route("/nodes/<id>", methods=['GET', 'DELETE', 'PUT'])
-def get_node(id):
+@app.post("/nodes")
+def nodes(node: dict):
     repository = fbp.repository()
-    if request.method == 'GET':
-        node = repository.get("nodespec", id)
-        return jsonify(node), 200, {'ContentType': 'application/json'}
-    elif request.method == 'DELETE':
-        repository.unregister("nodespec", id)
-        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-    elif request.method == 'PUT':
-        node = request.get_json()
-        # TODO Valude the node here
-        repository.register("nodespec", id, node)
-        return jsonify(node), 200, {'ContentType': 'application/json'}
-
-    return json.dumps({'success': False}), 400, {'ContentType': 'application/json'}
+    repository.register("nodespec", node["id"], node)
+    return node
 
 
-@app.route("/flows", methods=['GET', 'POST'])
-def flows():
+@app.get("/nodes/{node_id}")
+def get_node(node_id):
     repository = fbp.repository()
-    if request.method == 'POST':
-        flow = request.get_json()
-        repository.register("flow", flow["id"], flow)
-        return jsonify(flow)
-    else:
-        flows = repository.get("flow")
-        if flows is None:
-            return jsonify({})
-
-        result = [v for k, v in flows.items()]
-        return jsonify(result)
+    node = repository.get("nodespec", node_id)
+    return node
 
 
-@app.route("/flows/<id>", methods=['GET'])
-def get_flow(id):
+@app.delete("/nodes/{node_id}")
+def del_node(node_id):
     repository = fbp.repository()
-    node = repository.get("flow", id)
-    return jsonify(node)
+    repository.unregister("nodespec", node_id)
+    return {'success': True}
 
 
-@app.route("/runflow", methods=['POST'])
-def runflow():
+@app.put("/nodes/{node_id}")
+def update_node(node_id, node: dict):
+    repository = fbp.repository()
+    # TODO Valude the node here
+    repository.register("nodespec", node_id, node)
+    return node
+
+
+@app.get("/flows")
+def get_flows():
+    repository = fbp.repository()
+
+    flows = repository.get("flow")
+    if flows is None:
+        return {}
+
+    result = [v for k, v in flows.items()]
+    return result
+
+
+@app.post("/flows")
+def add_flows(flow: dict):
+    repository = fbp.repository()
+    repository.register("flow", flow["id"], flow)
+    return flow
+
+
+@app.get("/flows/{node_id}")
+def get_flow(node_id):
+    repository = fbp.repository()
+    node = repository.get("flow", node_id)
+    return node
+
+
+@app.websocket("/ws_runflow")
+async def ws_runflow(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        flow_spec = await websocket.receive_text()
+        fbp.run_flow(flow_spec)
+        await websocket.send_text(f"Message text was: {flow_spec}")
+
+
+@app.post("/runflow")
+def runflow(flow_spec: dict):
     try:
-        data = request.get_json()
-        print(json.dumps(data))
-        return jsonify(fbp.run_flow(data))
+        print(json.dumps(flow_spec))
+        return fbp.run_flow(flow_spec)
     except Exception as e:
         traceback.print_exc()
-        return json.dumps({"error": str(e)}), 500
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": str(e)})
 
 
-@app.route("/dumprepo", methods=['POST'])
-def dumprepo():
+@app.post("/dumprepo")
+def dumprepo(data: dict):
     try:
-        data = request.get_json()
         repository = fbp.repository()
         repository.dumps(data["path"])
-        return jsonify(data)
+        return data
     except Exception as e:
-        return json.dumps({"error": str(e)}), 500
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": str(e)})
 
 
-@app.route("/loadrepo", methods=['POST'])
-def loadrepo():
+@app.post("/loadrepo")
+def loadrepo(data: dict):
     try:
-        data = request.get_json()
         repository = fbp.repository()
         repository.loads(data["path"])
-        return jsonify(data)
+        return data
     except Exception as e:
-        return json.dumps({"error": str(e)}), 500
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": str(e)})
 
 
-@app.route("/ports/types", methods=['GET'])
+@app.get("/ports/types")
 def get_supported_port_types():
-    return jsonify(types=Port.support_types())
+    return list(Port.support_types())
+
+
+app.mount(r"/", staticFiles, name="static")
 
 
 def load_node_spec():
@@ -201,4 +235,9 @@ def init():
 
 if __name__ == "__main__":
     init()
-    app.run(host="0.0.0.0", threaded=True)
+
+    import uvicorn
+    uvicorn.run(app='server:app', host="0.0.0.0", port=5000,
+                workers=(os.cpu_count()*3)//4,  # worker数设置，如果不设置就是1个worker
+                reload=False, debug=False # 在生产环境，这两个参数必须是False，否则多进程性能将下降
+                )

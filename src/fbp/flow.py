@@ -150,7 +150,7 @@ class Flow(object):
         children = []
         for p in in_ports:
             link_to_p = self._links.get(_gen_lable(target_node, p))
-            if link_to_p is not None :
+            if link_to_p is not None:
                 children.append(link_to_p.source_node)
                 if link_to_p.source_node in source_nodes:
                     source_nodes.remove(link_to_p.source_node)
@@ -219,8 +219,9 @@ class Flow(object):
             manager.start()
             stat = manager.FlowStates()
 
-            p = Process(target=self._run_batch, args=(end_node, stat))
-            p.start()
+            # p = Process(target=self._run_batch, args=(end_node, stat))
+            # p.start()
+            self._run_batch(end_node, stat)
             return stat
         elif self._mode == EXEC_MODE_STREAMING:
             self._run_streaming(end_node)
