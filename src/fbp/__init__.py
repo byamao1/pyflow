@@ -2,6 +2,10 @@
 import json
 import time
 
+from fastapi import WebSocket
+
+from config.Constants import EXEC_MODE_STREAMING
+from config.log_config import log
 from fbp.node import Node
 from fbp.flow import Flow
 from fbp.repository import repository
@@ -33,7 +37,7 @@ def create_node(spec_id, id, name):
 # Todo consider unify the flow definition spec and running spec
 
 
-def _run_flow(flow_spec):
+def _parse_flow(flow_spec):
     flow_spec_obj = None
 
     if type(flow_spec) is not dict:
@@ -62,13 +66,33 @@ def _run_flow(flow_spec):
 
         aflow.link(source[0], source[1], target[0], target[1])
 
-    stats = aflow.run(end_node)
+    # Generate func of all nodes in flow
+    aflow.generate_node_func()
 
-    return stats
+    nodemap = [end_node]
+    aflow.find_source_nodes(end_node, nodemap)
+    return aflow, nodemap
 
 
-def run_flow(flow_spec):
-    stat = _run_flow(flow_spec)
+async def run_flow_streaming(flow_spec, interval, websocket: WebSocket):
+    """
+    Run flow by streaming
+    :param flow_spec:
+    :param interval: Unit is ms
+    :param websocket:
+    """
+    aflow, nodemap = _parse_flow(flow_spec)
+    try:
+        ret_msg = await aflow.run_streaming(nodemap, interval=interval, websocket=websocket)
+        log.info(ret_msg)
+    except Exception as e:
+        log.exception(e)
+
+
+def run_flow_once(flow_spec):
+    aflow, nodemap = _parse_flow(flow_spec)
+    stat = aflow.run_once(nodemap)
+
     # TODO : support run in async mode
     while not stat.check_stat():
         time.sleep(0.1)

@@ -1,5 +1,5 @@
 import threading
-import Queue
+import queue
 
 
 # A simple in memory message bus
@@ -21,7 +21,7 @@ class Bus(threading.Thread):
         threading.Thread.__init__(self)
         self._name = name
         self._subscribers = list()
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._stop = False
 
     @property

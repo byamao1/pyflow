@@ -1,13 +1,13 @@
 """Core Class for Flow."""
+import asyncio
 from multiprocessing import Process, Manager
 from multiprocessing.managers import BaseManager
 import sys
 import json
+from fastapi import WebSocket
+from config.Constants import EXEC_MODE_BATCH, EXEC_MODE_STREAMING, STREAMING_LOOP_WAIT_MSG, Command
+from config.log_config import log
 from fbp.node import Node
-
-
-EXEC_MODE_BATCH = "batch"
-EXEC_MODE_STREAMING = "streaming"
 
 
 class Path(object):
@@ -70,12 +70,12 @@ class FlowStates(object):
 
 class Flow(object):
 
-    def __init__(self, id, name):
+    def __init__(self, id, name, mode: str = EXEC_MODE_BATCH):
         self._name = name
         self._id = id
         self._nodes = dict()
         self._links = dict()
-        self._mode = EXEC_MODE_BATCH
+        self._mode = mode
 
     def add_node(self, node):
         self._nodes[node.id] = node
@@ -157,7 +157,7 @@ class Flow(object):
                 source_nodes.append(link_to_p.source_node)
         return children
 
-    def _find_source_nodes(self, target_node, source_nodes):
+    def find_source_nodes(self, target_node, source_nodes):
         # TODO : Add loop check
         children = [target_node]
         new_children = []
@@ -170,12 +170,7 @@ class Flow(object):
             children = new_children
             new_children = []
 
-    def _run_batch(self, end_node, stat):
-        # Generate func of all nodes in flow
-        self.generate_node_func()
-
-        nodemap = [end_node]
-        self._find_source_nodes(end_node, nodemap)
+    def _run_once(self, nodemap, stat):
         while True:
             if len(nodemap) == 0:
                 break
@@ -208,20 +203,69 @@ class Flow(object):
 
         stat.set_stat(True)
 
-    def _run_streaming(self, end_node):
-        pass
+    def run_once(self, nodemap:list):
+        BaseManager.register('FlowStates', FlowStates)
+        BaseManager.register('Node', Node)
+        manager = BaseManager()
+        manager.start()
+        stat = manager.FlowStates()
 
-    def run(self, end_node):
-        if self._mode == EXEC_MODE_BATCH:
-            BaseManager.register('FlowStates', FlowStates)
-            BaseManager.register('Node', Node)
-            manager = BaseManager()
-            manager.start()
-            stat = manager.FlowStates()
+        # p = Process(target=self._run_batch, args=(end_node, stat))
+        # p.start()
+        self._run_once(nodemap, stat)
+        return stat
 
-            # p = Process(target=self._run_batch, args=(end_node, stat))
-            # p.start()
-            self._run_batch(end_node, stat)
-            return stat
-        elif self._mode == EXEC_MODE_STREAMING:
-            self._run_streaming(end_node)
+    async def run_streaming(self, nodemap, interval, websocket: WebSocket)->str:
+        """
+
+        :param nodemap:
+        :param interval: Unit is ms
+        :param websocket:
+        """
+        i = 0
+        while True:
+            if len(nodemap) == 0:
+                return "Node number is 0"
+            # Reset
+            if i <= -1 * len(nodemap):
+                i = 0
+                # If receive stop message
+                try:
+                    msg = await asyncio.wait_for(websocket.receive_text(), STREAMING_LOOP_WAIT_MSG)
+                    log.debug(f"msg: {msg}")
+                    if msg == Command.stop_msg:
+                        return "Streaming flow is stopped by client."
+                except asyncio.TimeoutError:
+                    pass
+                # Run flow interval
+                await asyncio.sleep(interval / 1000)
+
+            i -= 1
+            anode = nodemap[i]
+            node_value = anode.get_node_value()
+
+            dep_nodes = list()
+            find_failure = False
+            for n in self._find_dependant_nodes(anode, dep_nodes):
+                if n._status == "fail" or n._status == "skip":
+                    node_value["status"] = "skip"
+                    node_value["error"] = "skip due to denpendency node failure"
+                    await websocket.send_text([node_value])
+                    find_failure = True
+                    return f"Node status is [{n._status}]"
+
+            if find_failure:
+                # break incase there is depedency failure
+                return "Find failure"
+
+            try:
+                anode.run()
+                node_value = anode.get_node_value()
+            except Exception as e:
+                node_value = anode.get_node_value()
+                node_value["status"] = "fail"
+                node_value["error"] = str(e)
+            finally:
+                await websocket.send_text(json.dumps([node_value]))
+
+
