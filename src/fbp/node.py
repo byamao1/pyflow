@@ -2,14 +2,10 @@
 
 import traceback, pdb
 
+from fbp.common import Status
 from fbp.port import Inport, Outport
 
 OUTPORT_DEFAULT_NAME = "out"
-
-STATUS_SUCCESS = "success"
-STATUS_FAIL = "fail"
-STATUS_INIT = "init"
-STATUS_RUNNING = "running"
 
 
 class Node(object):
@@ -24,7 +20,7 @@ class Node(object):
         self._outputports = dict()
         self._initports()
         self._is_cache_valid = False
-        self._status = STATUS_INIT
+        self._status = Status.INIT
         self._error = None
 
     def generate_node_func(self):
@@ -166,11 +162,11 @@ class Node(object):
         def _function_wrapper(func, args):
             return func(*args)
 
-        self._status = STATUS_RUNNING
+        self._status = Status.RUNNING
 
         if self._is_cache_valid:
             # Cache Hit
-            self._status = STATUS_SUCCESS
+            self._status = Status.SUCCESS
             self._error = None
             return
 
@@ -184,7 +180,7 @@ class Node(object):
             return_value = _function_wrapper(self._func, parameter_values)
             
             self._is_cache_valid = False #True  # Use cache
-            self._status = STATUS_SUCCESS
+            self._status = Status.SUCCESS
             self._error = None
 
             # Single output case
@@ -198,6 +194,6 @@ class Node(object):
             for k, v in self._outputports.items():
                 v.value = return_value.get(k)
         except Exception as e:
-            self._status = STATUS_FAIL
+            self._status = Status.FAIL
             self._error = e
             print(traceback.format_exc())

@@ -5,8 +5,9 @@ from multiprocessing.managers import BaseManager
 import sys
 import json
 from fastapi import WebSocket
-from config.Constants import EXEC_MODE_BATCH, EXEC_MODE_STREAMING, STREAMING_LOOP_WAIT_MSG, Command
+from config.Constants import EXEC_MODE_BATCH, EXEC_MODE_STREAMING, STREAMING_LOOP_WAIT_MSG
 from config.log_config import log
+from fbp.common import Command, Status
 from fbp.node import Node
 
 
@@ -180,8 +181,8 @@ class Flow(object):
             dep_nodes = list()
             find_failure = False
             for n in self._find_dependant_nodes(anode, dep_nodes):
-                if n._status == "fail" or n._status == "skip":
-                    node_value["status"] = "skip"
+                if n._status in [Status.FAIL, Status.SKIP]:
+                    node_value["status"] = Status.SKIP
                     node_value["error"] = "skip due to denpendency node failure"
                     stat.append_stat(node_value)
                     find_failure = True
@@ -196,7 +197,7 @@ class Flow(object):
                 node_value = anode.get_node_value()
             except Exception as e:
                 node_value = anode.get_node_value()
-                node_value["status"] = "fail"
+                node_value["status"] = Status.FAIL
                 node_value["error"] = str(e)
             finally:
                 stat.append_stat(node_value)
@@ -215,7 +216,7 @@ class Flow(object):
         self._run_once(nodemap, stat)
         return stat
 
-    async def run_streaming(self, nodemap, interval, websocket: WebSocket)->str:
+    async def run_streaming(self, nodemap, interval, websocket: WebSocket) -> str:
         """
 
         :param nodemap:
@@ -233,7 +234,7 @@ class Flow(object):
                 try:
                     msg = await asyncio.wait_for(websocket.receive_text(), STREAMING_LOOP_WAIT_MSG)
                     log.debug(f"msg: {msg}")
-                    if msg == Command.stop_msg:
+                    if msg == Command.STOP:
                         return "Streaming flow is stopped by client."
                 except asyncio.TimeoutError:
                     pass
@@ -247,8 +248,8 @@ class Flow(object):
             dep_nodes = list()
             find_failure = False
             for n in self._find_dependant_nodes(anode, dep_nodes):
-                if n._status == "fail" or n._status == "skip":
-                    node_value["status"] = "skip"
+                if n._status in [Status.FAIL, Status.SKIP]:
+                    node_value["status"] = Status.SKIP
                     node_value["error"] = "skip due to denpendency node failure"
                     await websocket.send_text([node_value])
                     find_failure = True
@@ -263,7 +264,7 @@ class Flow(object):
                 node_value = anode.get_node_value()
             except Exception as e:
                 node_value = anode.get_node_value()
-                node_value["status"] = "fail"
+                node_value["status"] = Status.FAIL
                 node_value["error"] = str(e)
             finally:
                 await websocket.send_text(json.dumps([node_value]))

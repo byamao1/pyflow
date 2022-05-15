@@ -8,5 +8,3 @@ EXEC_MODE_STREAMING = "streaming"
 STREAMING_LOOP_WAIT_MSG = 0.001  # second
 
 
-class Command:
-    stop_msg = "stop"
