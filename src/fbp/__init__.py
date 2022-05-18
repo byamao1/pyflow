@@ -51,12 +51,13 @@ def _parse_flow(flow_spec):
 
     aflow = Flow(flow_spec_obj.get("id"), flow_spec_obj.get("name"))
 
+    end_node_list = []
     for node_def in flow_spec_obj.get("nodes"):
         anode = create_node(node_def.get("spec_id"),
                             node_def.get("id"), node_def.get("name"))
         aflow.add_node(anode)
         if "is_end" in node_def.keys() and node_def.get("is_end") == 1:
-            end_node = anode
+            end_node_list.append(anode)
         for port_def in node_def.get("ports"):
             anode.set_inport_value(port_def.get("name"), port_def.get("value"))
 
@@ -69,8 +70,8 @@ def _parse_flow(flow_spec):
     # Generate func of all nodes in flow
     aflow.generate_node_func()
 
-    nodemap = [end_node]
-    aflow.find_source_nodes(end_node, nodemap)
+    nodemap = end_node_list.copy()
+    aflow.find_source_nodes(end_node_list, nodemap)
     return aflow, nodemap
 
 

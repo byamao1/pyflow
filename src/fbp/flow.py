@@ -158,9 +158,9 @@ class Flow(object):
                 source_nodes.append(link_to_p.source_node)
         return children
 
-    def find_source_nodes(self, target_node, source_nodes):
+    def find_source_nodes(self, target_nodes, source_nodes):
         # TODO : Add loop check
-        children = [target_node]
+        children = target_nodes
         new_children = []
         while True:
             for child in children:
