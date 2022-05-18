@@ -4,7 +4,7 @@ import json
 
 sys.path.append('../../src')
 
-from fbp import create_node, run_flow
+from fbp import create_node, run_flow_once
 import fbp.repository
 
 # CLI Node Definition
@@ -132,7 +132,7 @@ class TestFBPRunner(unittest.TestCase):
       }
       '''
 
-        print(json.dumps(run_flow(flow_spec)))
+        print(json.dumps(run_flow_once(flow_spec)))
         print("\n")
 
     def test_run2(self):
@@ -140,7 +140,7 @@ class TestFBPRunner(unittest.TestCase):
         flow_spec = '''{"id":"flowbuilder.gen","name":"BuilderSample","nodes":[{"id":"node1419317316499","spec_id":"flow.cli","name":"cli","ports":[{"name":"command","value":"iostat"}],"is_end":1}],"links":[]}
       '''
 
-        print(json.dumps(run_flow(flow_spec)))
+        print(json.dumps(run_flow_once(flow_spec)))
         print("\n")
 
     def test_run3(self):
@@ -148,7 +148,7 @@ class TestFBPRunner(unittest.TestCase):
         flow_spec = '''{"id":"flowbuilder.gen","name":"BuilderSample","nodes":[{"id":"node1419317316499","spec_id":"flow.cli","name":"cli","ports":[{"name":"command","value":"ls"}],"is_end":1}],"links":[]}
       '''
 
-        print(json.dumps(run_flow(flow_spec)))
+        print(json.dumps(run_flow_once(flow_spec)))
         print("\n")
 
 
