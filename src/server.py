@@ -1,6 +1,6 @@
 import traceback
 
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, Body
 from fastapi.requests import Request
 
 import os
@@ -12,22 +12,24 @@ from starlette.staticfiles import StaticFiles
 
 import nodemaker
 import fbp
+from config.log_config import log
+from fbp.common import Status
 
 from fbp.port import Port
+from routers.ds import ds_router
 
 app = FastAPI()
-
+app.include_router(ds_router)
 
 staticFiles = StaticFiles(directory="static")
 
 
 @app.middleware("http")
 async def add_filter(request: Request, call_next):
-    import logging
     try:
         response = await call_next(request)
     except Exception as e:
-        logging.exception(e)
+        log.exception(e)
     return response
 
 
@@ -166,17 +168,23 @@ def get_flow(node_id):
 @app.websocket("/ws_runflow")
 async def ws_runflow(websocket: WebSocket):
     await websocket.accept()
+
     while True:
-        flow_spec = await websocket.receive_text()
-        fbp.run_flow(flow_spec)
-        await websocket.send_text(f"Message text was: {flow_spec}")
+        from starlette.websockets import WebSocketDisconnect
+        try:
+            body_dict = await websocket.receive_json()
+            await fbp.run_flow_streaming(body_dict['flow'], body_dict['interval'], websocket)
+            await websocket.send_text(Status.END)
+            await websocket.close()
+        except WebSocketDisconnect as e:
+            log.info('Websocket disconnect')
 
 
 @app.post("/runflow")
 def runflow(flow_spec: dict):
     try:
-        print(json.dumps(flow_spec))
-        return fbp.run_flow(flow_spec)
+        log.info(json.dumps(flow_spec))
+        return fbp.run_flow_once(flow_spec)
     except Exception as e:
         traceback.print_exc()
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": str(e)})
@@ -238,6 +246,6 @@ if __name__ == "__main__":
 
     import uvicorn
     uvicorn.run(app='server:app', host="0.0.0.0", port=5000,
-                workers=(os.cpu_count()*3)//4,  # worker数设置，如果不设置就是1个worker
-                reload=False, debug=False # 在生产环境，这两个参数必须是False，否则多进程性能将下降
+                workers=1, #os.cpu_count()//4,  # worker数设置，如果不设置就是1个worker
+                reload=False, debug=False,  # 在生产环境，这两个参数必须是False，否则多进程性能将下降
                 )
