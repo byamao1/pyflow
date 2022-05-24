@@ -22,15 +22,18 @@ def fft(data: dict):
     x = data['x']
     y = data['y']
     fft_y = fft(y)
-    res = np.abs(fft_y)
-    # return list(res)
+    abs_fft = np.abs(fft_y)
+    half_x = x[:len(x)//2]
+    half_abs_fft = abs_fft[:len(abs_fft)//2]
+    # return {'x': half_x, 'y': half_abs_fft.tolist()}
     plt.subplot(231)
     plt.plot(x, y)
     plt.title('原始波形')
 
-    plt.subplot(232)
-    plt.plot(x, fft_y, 'black')
-    plt.title('双边振幅谱(未求振幅绝对值)', fontsize=9, color='black')
+    fft_ax = plt.subplot(232)
+    # fft_ax.set_yscale('log')
+    plt.plot(half_x, half_abs_fft, 'black')
+    plt.title('单边振幅谱', fontsize=9, color='black')
     plt.show()
 
 
