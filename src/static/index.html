@@ -1,93 +1,15 @@
-
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>PyFlow</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <!-- Le styles -->
-    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="node_modules/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
-    <link href="node_modules/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet">
-    <link href="node_modules/codemirror/lib/codemirror.css" rel="stylesheet">
-    <link href="node_modules/codemirror/theme/icecoder.css" rel="stylesheet">
-
-    <link href="css/pyflow.css" rel="stylesheet">
-    <style>
-      body {
-        padding-top: 0px; /* 60px to make the container go all the way to the bottom of the topbar */
-      }
-    </style>
-
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-
-  <body>
-
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar">A</span>
-            <span class="icon-bar">B</span>
-            <span class="icon-bar">C</span>
-          </button>
-          <a class="navbar-brand" href="#">Pyflow</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#" id="menuFlow">Flow<span class="sr-only">(current)</span></a></li>
-            <li><a href="#" id="menuNode">Node</a></li>
-          </ul>            
-          <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Actions <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#" id="load-action-menu" >Load Repository</a></li>
-                <li><a href="#" id="dump-action-menu" >Dump Repository</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">About</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-
-    <div class="container-fluid" id="mainUI">
-    </div> <!-- /container -->
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="node_modules/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
-    <script type="text/javascript" src="node_modules/codemirror/lib/codemirror.js"></script>
-    <script type="text/javascript" src="node_modules/codemirror/mode/python/python.js"></script>
-    <script type="text/javascript" src="node_modules/js-beautify/js/lib/beautify.js"></script>
-    <script type="text/javascript" src="node_modules/d3/build/d3.min.js"></script>
-    <script type="text/javascript" src="node_modules/jsplumb/dist/js/jsplumb.min.js"></script>
-    <script type="text/javascript" src="./node_modules/requirejs/require.js"></script>
-    <script>
-      requirejs.config({
-          baseUrl: 'js',
-          paths: {
-            comp: './components',
-            model: './model'
-          }
-      });
-    </script>
-    <script src="js/app.js"></script>
-  </body>
-</html>
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/favicon.ico"><title>aiit-calc-flow</title><link href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.22.2/codemirror.min.css" type="text/css" rel="stylesheet"><link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.22.2/theme/icecoder.min.css" type="text/css" rel="stylesheet"><link href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.65.2/addon/hint/show-hint.min.css" type="text/css" rel="stylesheet"><script>// rem  1rem =100px
+      (function () {
+        const baseSize = 100;
+        // 设置 rem 函数
+        function setRem() {
+          // 当前页面宽度相对于 1920宽的缩放比例，可根据自己需要修改。
+          const scale = document.documentElement.clientWidth / 1920;
+          // 设置页面根节点字体大小（“Math.min(scale, 2)” 指最高放大比例为2，可根据实际业务需求调整）
+          document.documentElement.style.fontSize = baseSize * Math.min(scale, 2) + 'px';
+        }
+        // 初始化
+        setRem();
+        // 改变窗口大小时重新设置 rem
+        window.addEventListener('resize', setRem);
+      })();</script><link href="/assets/css/about.8eb34325.css" rel="prefetch"><link href="/assets/js/about.18e9daf4.js" rel="prefetch"><link href="/assets/css/app.f0206ef3.css" rel="preload" as="style"><link href="/assets/js/app.798b15c7.js" rel="preload" as="script"><link href="/assets/js/chunk-vendors.b72919f1.js" rel="preload" as="script"><link href="/assets/css/app.f0206ef3.css" rel="stylesheet"></head><body><noscript><strong>We're sorry but aiit-calc-flow doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jqueryui/1.12.1/jquery-ui.min.js"></script><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jsPlumb/2.7.1/js/jsplumb.js"></script><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.22.2/codemirror.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.65.2/addon/hint/show-hint.min.js"></script><script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.65.2/addon/display/placeholder.min.js"></script><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.22.2/mode/python/python.min.js"></script><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.65.2/addon/hint/sql-hint.min.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/codemirror/5.65.2/mode/sql/sql.min.js"></script><script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/js-beautify/1.14.0/beautify.min.js"></script><script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/clipboard.js/2.0.10/clipboard.min.js"></script><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery-jsonview/1.2.3/jquery.jsonview.min.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/echarts/4.0.0/echarts.js"></script><script src="/assets/js/chunk-vendors.b72919f1.js"></script><script src="/assets/js/app.798b15c7.js"></script></body></html>
