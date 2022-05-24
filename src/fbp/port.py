@@ -79,6 +79,9 @@ def type_conversion(value, type):
 
 
 class Port(object):
+    TYPE_IN = "in"
+    TYPE_OUT = "out"
+
     def __init__(self, name, type='String'):
         self._name = name
         self._type = type

@@ -9,6 +9,7 @@ from config.Constants import EXEC_MODE_BATCH, EXEC_MODE_STREAMING, STREAMING_LOO
 from config.log_config import log
 from fbp.common import Command, Status
 from fbp.node import Node
+from fbp.port import Port
 
 
 class Path(object):
@@ -108,8 +109,8 @@ class Flow(object):
 
         source_node = self._nodes.get(source_node_id)
         target_node = self._nodes.get(target_node_id)
-        source_port = source_node.get_port(source_port_name, "out")
-        target_port = target_node.get_port(target_port_name, "in")
+        source_port = source_node.get_port(source_port_name, Port.TYPE_OUT)
+        target_port = target_node.get_port(target_port_name, Port.TYPE_IN)
 
         if source_port is None:
             raise Exception("The source port {} is not in the node {}".format(
@@ -147,7 +148,7 @@ class Flow(object):
         return self._links
 
     def _find_dependant_nodes(self, target_node, source_nodes):
-        in_ports = target_node.get_ports("in")
+        in_ports = target_node.get_ports(Port.TYPE_IN)
         children = []
         for p in in_ports:
             link_to_p = self._links.get(_gen_lable(target_node, p))
@@ -193,6 +194,8 @@ class Flow(object):
                 break
 
             try:
+                if anode.get_port("loop_n", Port.TYPE_IN) is not None:
+                    anode.set_inport_value("loop_n", 0)
                 anode.run()
                 node_value = anode.get_node_value()
             except Exception as e:
@@ -223,13 +226,14 @@ class Flow(object):
         :param interval: Unit is ms
         :param websocket:
         """
-        i = 0
+        node_i = 0
+        loop_n = 0
         while True:
             if len(nodemap) == 0:
                 return "Node number is 0"
             # Reset
-            if i <= -1 * len(nodemap):
-                i = 0
+            if node_i <= -1 * len(nodemap):
+                node_i = 0
                 # If receive stop message
                 try:
                     msg = await asyncio.wait_for(websocket.receive_text(), STREAMING_LOOP_WAIT_MSG)
@@ -241,8 +245,8 @@ class Flow(object):
                 # Run flow interval
                 await asyncio.sleep(interval / 1000)
 
-            i -= 1
-            anode = nodemap[i]
+            node_i -= 1
+            anode = nodemap[node_i]
             node_value = anode.get_node_value()
 
             dep_nodes = list()
@@ -260,6 +264,18 @@ class Flow(object):
                 return "Find failure"
 
             try:
+                if anode.get_port("loop_n", Port.TYPE_IN) is not None:
+                    anode.set_inport_value("loop_n", loop_n)
+                    anode.set_inport_value("db_config", {"host": "rm-uf607hj14l5cl21o7fo.mysql.rds.aliyuncs.com",
+                                                         "port": 3306,
+                                                         "user": "aiit_jie",
+                                                         "password": "Aiit-jie-jkwerouioer",
+                                                         "database": "test"
+                                                         })
+                    anode.set_inport_value("sql", "select id, x from ts_data_repair")
+                    anode.set_inport_value("axis_col_map", {'x': 'id', 'y': 'x'})
+                    anode.set_inport_value("window_config", {"window_len": 1000, "shift_len": 30})
+
                 anode.run()
                 node_value = anode.get_node_value()
             except Exception as e:
@@ -268,5 +284,7 @@ class Flow(object):
                 node_value["error"] = str(e)
             finally:
                 await websocket.send_text(json.dumps([node_value]))
+
+            loop_n += 1
 
 

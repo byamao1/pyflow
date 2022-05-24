@@ -3,7 +3,7 @@
 import traceback, pdb
 
 from fbp.common import Status
-from fbp.port import Inport, Outport
+from fbp.port import Inport, Outport, Port
 
 OUTPORT_DEFAULT_NAME = "out"
 
@@ -114,9 +114,9 @@ class Node(object):
         self._is_cache_valid = False
 
     def get_port(self, port_name, port_type):
-        if port_type == "in":
+        if port_type == Port.TYPE_IN:
             return self._inputports.get(port_name)
-        elif port_type == "out":
+        elif port_type == Port.TYPE_OUT:
             return self._outputports.get(port_name)
         else:
             raise Exception("Invalid port type {}".format(port_type))
