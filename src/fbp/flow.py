@@ -234,14 +234,16 @@ class Flow(object):
             # Reset
             if node_i <= -1 * len(nodemap):
                 node_i = 0
-                # If receive stop message
-                try:
-                    msg = await asyncio.wait_for(websocket.receive_text(), STREAMING_LOOP_WAIT_MSG)
-                    log.debug(f"msg: {msg}")
-                    if msg == Command.STOP:
-                        return "Streaming flow is stopped by client."
-                except asyncio.TimeoutError:
-                    pass
+
+                if websocket is not None:
+                    # If receive stop message
+                    try:
+                        msg = await asyncio.wait_for(websocket.receive_text(), STREAMING_LOOP_WAIT_MSG)
+                        log.debug(f"msg: {msg}")
+                        if msg == Command.STOP:
+                            return "Streaming flow is stopped by client."
+                    except asyncio.TimeoutError:
+                        pass
                 # Run flow interval
                 await asyncio.sleep(interval / 1000)
 
@@ -255,7 +257,8 @@ class Flow(object):
                 if n._status in [Status.FAIL, Status.SKIP]:
                     node_value["status"] = Status.SKIP
                     node_value["error"] = "skip due to denpendency node failure"
-                    await websocket.send_text([node_value])
+                    if websocket is not None:
+                        await websocket.send_text([node_value])
                     find_failure = True
                     return f"Node status is [{n._status}]"
 
@@ -283,7 +286,8 @@ class Flow(object):
                 node_value["status"] = Status.FAIL
                 node_value["error"] = str(e)
             finally:
-                await websocket.send_text(json.dumps([node_value]))
+                if websocket is not None:
+                    await websocket.send_text(json.dumps([node_value]))
 
             loop_n += 1
 
