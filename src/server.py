@@ -183,7 +183,6 @@ async def ws_runflow(websocket: WebSocket):
 @app.post("/runflow")
 def runflow(flow_spec: dict):
     try:
-        log.info(json.dumps(flow_spec))
         return fbp.run_flow_once(flow_spec)
     except Exception as e:
         traceback.print_exc()
