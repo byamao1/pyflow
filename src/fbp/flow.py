@@ -269,16 +269,6 @@ class Flow(object):
             try:
                 if anode.get_port("loop_n", Port.TYPE_IN) is not None:
                     anode.set_inport_value("loop_n", loop_n)
-                    anode.set_inport_value("db_config", {"host": "rm-uf607hj14l5cl21o7fo.mysql.rds.aliyuncs.com",
-                                                         "port": 3306,
-                                                         "user": "aiit_jie",
-                                                         "password": "Aiit-jie-jkwerouioer",
-                                                         "database": "test"
-                                                         })
-                    anode.set_inport_value("sql", "select id, x from ts_data_repair")
-                    anode.set_inport_value("axis_col_map", {'x': 'id', 'y': 'x'})
-                    anode.set_inport_value("window_config", {"window_len": 1000, "shift_len": 30})
-
                 anode.run()
                 node_value = anode.get_node_value()
             except Exception as e:
