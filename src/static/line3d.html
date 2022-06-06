@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Line 3D - ECHARTS-GL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Fullscreen Landscape on iOS -->
+  </head>
+  <body>
+    <div id="main" style="width: 800px; height: 800px"></div>
+    <script
+      type="text/javascript"
+      src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/echarts/4.0.0/echarts.js"
+    ></script>
+    <script
+      src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/echarts-gl/1.0.1/echarts-gl.js"
+      type="application/javascript"
+    ></script>
+    <script>
+      var chart = echarts.init(document.getElementById('main'));
+
+      chart.setOption({
+        xAxis3D: {
+          type: 'value',
+          name: 'Hz'
+        },
+        yAxis3D: {
+          type: 'value',
+          name: 'time'
+        },
+        zAxis3D: {
+          type: 'value',
+          name: 'm/s2'
+        },
+        grid3D: {
+          boxWidth: 200,
+          boxHeight: 100,
+          axisLabel: {
+            textStyle: {
+              color: '#808080'
+            }
+          },
+          axisLine: {
+            lineStyle: {
+              color: '#4B4B4B'
+            }
+          },
+          splitLine: {
+            lineStyle: {
+              color: '#4B4B4B'
+            }
+          },
+          axisPointer: {
+            lineStyle: {
+              color: '#4B4B4B'
+            }
+          },
+          viewControl: {
+            projection: 'orthographic',
+            distance: 200,
+            alpha: 70,
+            beta: 15
+          }
+        },
+        series: [
+          {
+            type: 'line3D',
+            lineStyle: {
+              color: '#00A86B',
+              width: 10
+            },
+            data: [
+              [-1, 0, 0],
+              [0, 0, 4],
+              [1, 0, 0]
+            ]
+          }
+        ]
+      });
+
+      window.addEventListener('resize', function () {
+        chart.resize();
+      });
+    </script>
+  </body>
+</html>
