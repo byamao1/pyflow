@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/4/20 10:02
 # @Author  : Tom
-import matplotlib.pyplot as plt
 
 
 def func(data: dict):
+    import numpy as np
     x = data['x']
-    y = data['y']
-    y_max = max(y)
-    plt.plot(x, y)
-    plt.show()
-    return {'x': x[0], 'y': y_max}
+    y = np.array(data['y'])
+    out = np.max(np.abs(y))/(np.mean(np.abs(y)))
+    return {'x': x[0], 'y': out}
 
 
 if __name__ == '__main__':
     import numpy as np
 
-    data = {'x': np.arange(10).tolist(), 'y': np.arange(10).tolist()}
+    data = {'x': np.arange(-3, 0).tolist(), 'y': np.arange(-3, 0).tolist()}
     print(func(data))
