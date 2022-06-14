@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/4/20 10:02
 # @Author  : Tom
-import matplotlib.pyplot as plt
 
 
 def func(data: dict):
+    import scipy.stats
     x = data['x']
-    y = data['y']
-    y_max = max(y)
-    plt.plot(x, y)
-    plt.show()
-    return {'x': x[0], 'y': y_max}
+    y = np.array(data['y'])
+    out = scipy.stats.kurtosis(y, fisher=True)
+    return {'x': x[0], 'y': out}
 
 
 if __name__ == '__main__':
     import numpy as np
 
-    data = {'x': np.arange(10).tolist(), 'y': np.arange(10).tolist()}
+    data = {'x': np.arange(3).tolist(), 'y': np.arange(3).tolist()}
     print(func(data))
