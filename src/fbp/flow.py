@@ -269,6 +269,16 @@ class Flow(object):
             try:
                 if anode.get_port("loop_n", Port.TYPE_IN) is not None:
                     anode.set_inport_value("loop_n", loop_n)
+
+
+
+                if anode.get_port("port", Port.TYPE_IN) is not None:
+                    anode.set_inport_value("port", "com3")
+                    anode.set_inport_value("baud", 115200)
+                    anode.set_inport_value("window_len", 500)
+
+
+
                 anode.run()
                 node_value = anode.get_node_value()
             except Exception as e:
