@@ -14,6 +14,7 @@ TYPES["Int"] = int
 TYPES["Long"] = int
 TYPES["Float"] = float
 TYPES["String"] = str
+TYPES["File"] = str
 TYPES["List"] = list
 TYPES["Json"] = dict
 

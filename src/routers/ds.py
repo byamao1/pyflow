@@ -60,3 +60,18 @@ def read_table(body: dict = Body(..., example={"db_config": {"host": "rm-uf607hj
         return df.to_dict(orient="list")
     except Exception as e:
         return str(e)
+
+
+@ds_router.post("/upload_file", summary='Upload file', description='Upload file', )
+def upload_file(db_config: DbConfig = Body(..., example={"host": "rm-uf607hj14l5cl21o7fo.mysql.rds.aliyuncs.com",
+                                                          "port": 3306,
+                                                          "user": "aiit_jie",
+                                                          "password": "Aiit-jie-jkwerouioer",
+                                                          "database": "test"
+                                                          })):
+    try:
+        cursor, conn = connect_db(db_config)
+        close_conn(cursor, conn)
+        return ReturnMsg.SUCCESS
+    except Exception as e:
+        return str(e)

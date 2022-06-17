@@ -5,7 +5,9 @@
 
 
 def func(data: dict):
+    import numpy as np
     import scipy.stats
+
     x = data['x']
     y = np.array(data['y'])
     out = scipy.stats.kurtosis(y, fisher=True)
