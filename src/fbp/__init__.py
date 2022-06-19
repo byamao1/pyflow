@@ -4,7 +4,7 @@ import time
 
 from fastapi import WebSocket
 
-from config.Constants import EXEC_MODE_STREAMING
+from config.constants import EXEC_MODE_STREAMING
 from config.log_config import log
 from fbp.node import Node
 from fbp.flow import Flow

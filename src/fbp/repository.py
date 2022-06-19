@@ -1,6 +1,8 @@
 import sqlite3
 import json
 
+from config.path_config import REPO_PATH
+
 
 def singleton(class_):
     instances = {}
@@ -9,6 +11,7 @@ def singleton(class_):
         if class_ not in instances:
             instances[class_] = class_(*args, **kwargs)
         return instances[class_]
+
     return getinstance
 
 
@@ -80,7 +83,7 @@ class SqliteRepo(BaseRepo):
     def __init__(self):
         BaseRepo.__init__(self)
         # TODO : config the db name here
-        self._conn = sqlite3.connect('repo.db', check_same_thread=False)
+        self._conn = sqlite3.connect(REPO_PATH, check_same_thread=False)
         self._domains = set()
 
     def register(self, domain, key, value):
@@ -129,7 +132,7 @@ class SqliteRepo(BaseRepo):
         c = self._conn.cursor()
         cursor = c.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")
-        return [ row[0] for row in cursor]
+        return [row[0] for row in cursor]
 
     def clean(self):
         c = self._conn.cursor()

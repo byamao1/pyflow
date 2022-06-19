@@ -94,3 +94,4 @@ src/static/node_modules
 
 .idea/
 nohup.out
+tmp/

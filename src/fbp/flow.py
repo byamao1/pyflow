@@ -5,7 +5,7 @@ from multiprocessing.managers import BaseManager
 import sys
 import json
 from fastapi import WebSocket
-from config.Constants import EXEC_MODE_BATCH, EXEC_MODE_STREAMING, STREAMING_LOOP_WAIT_MSG
+from config.constants import EXEC_MODE_BATCH, EXEC_MODE_STREAMING, STREAMING_LOOP_WAIT_MSG
 from config.log_config import log
 from fbp.common import Command, Status
 from fbp.node import Node

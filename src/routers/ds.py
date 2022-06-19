@@ -2,13 +2,18 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/5/22 11:52
 # @Author  : Tom
-from fastapi import APIRouter, Body
+import os
+
+from fastapi import APIRouter, Body, UploadFile
 
 import pandas as pd
+from fastapi.params import File
 
-from config.Constants import ReturnMsg
+from config.constants import ReturnMsg
+from config.path_config import TMP_DIR
 from dto.db_connect import DbConfig
 from utils.mysql_util import connect_db, close_conn
+from utils.time_util import get_now_str
 
 ds_router = APIRouter(tags=["Data input"], )
 
@@ -63,15 +68,14 @@ def read_table(body: dict = Body(..., example={"db_config": {"host": "rm-uf607hj
 
 
 @ds_router.post("/upload_file", summary='Upload file', description='Upload file', )
-def upload_file(db_config: DbConfig = Body(..., example={"host": "rm-uf607hj14l5cl21o7fo.mysql.rds.aliyuncs.com",
-                                                          "port": 3306,
-                                                          "user": "aiit_jie",
-                                                          "password": "Aiit-jie-jkwerouioer",
-                                                          "database": "test"
-                                                          })):
-    try:
-        cursor, conn = connect_db(db_config)
-        close_conn(cursor, conn)
-        return ReturnMsg.SUCCESS
-    except Exception as e:
-        return str(e)
+async def upload_file(file: UploadFile = File(...)):
+    contents = await file.read()
+
+    # Check tmp dir
+    if not os.path.exists(TMP_DIR):
+        os.makedirs(TMP_DIR)
+
+    tmp_file_path = os.path.join(TMP_DIR, f"{get_now_str('%Y%m%d%H%M%S%f')}-{file.filename}")
+    with open(tmp_file_path, 'wb') as f:
+        f.write(contents)
+    return tmp_file_path

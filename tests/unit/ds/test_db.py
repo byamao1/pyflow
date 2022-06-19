@@ -25,9 +25,6 @@ def func(db_config, sql, col_axis_map, window_config, loop_n):
     df = pd.read_sql(sql=sql, con=conn)
     conn.close()
     if len(df) < window_config['window_len']:
-        print(loop_n)
-        print(len(df))
-        print(sql)
         return {}
     return {k: df[v].tolist() for k, v in col_axis_map.items()}
 
