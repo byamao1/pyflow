@@ -19,15 +19,19 @@ def func(db_config, sql, axis_col_map, window_config, loop_n):
                            database=db_config.get('database', None))
 
     # Execute sql
+    offset = loop_n * window_config['shift_len']
     sql = f"""
-        {sql} LIMIT {window_config['window_len']} OFFSET {loop_n * window_config['shift_len']}
+        {sql} LIMIT {window_config['window_len']} OFFSET {offset}
     """
     df = pd.read_sql(sql=sql, con=conn)
     conn.close()
     if len(df) < window_config['window_len']:
         return {}
     df = df.fillna(0)  # Fill nan
-    return {k: df[v].tolist() for k, v in axis_col_map.items()}
+    out = {k: df[v].tolist() for k, v in axis_col_map.items()}
+    if 'x' not in out.keys():
+        out['x'] = list(range(offset, len(df) + offset))
+    return out
 
 
 def fft(data: dict):

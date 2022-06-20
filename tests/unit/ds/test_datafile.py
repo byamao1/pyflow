@@ -29,12 +29,16 @@ def func(file_path, axis_col_map, window_config, loop_n):
         return {}
     df = df[offset:offset + window_len]
     df = df.fillna(0)  # Fill nan
-    return {k: df[v].tolist() for k, v in axis_col_map.items()}
+    out = {k: df[v].tolist() for k, v in axis_col_map.items()}
+    if 'x' not in out.keys():
+        out['x'] = list(range(offset, len(df) + offset))
+    return out
 
 
 if __name__ == '__main__':
     file_path = "../data/ts_data.xlsx"
-    axis_col_map = {'x': 'id', 'y': 'x'}
+    # axis_col_map = {'x': 'id', 'y': 'x'}
+    axis_col_map = {'y': 'x'}
     window_config = {"window_len": 1000, "shift_len": 30}
     for i in range(2):
         data = func(file_path, axis_col_map, window_config, loop_n=i)
