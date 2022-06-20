@@ -31,7 +31,7 @@ def func(file_path, axis_col_map, window_config, loop_n):
     df = df.fillna(0)  # Fill nan
     out = {k: df[v].tolist() for k, v in axis_col_map.items()}
     if 'x' not in out.keys():
-        out['x'] = list(range(len(df)))
+        out['x'] = list(range(offset, len(df) + offset))
     return out
 
 
