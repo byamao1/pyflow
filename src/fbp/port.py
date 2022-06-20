@@ -69,7 +69,7 @@ def type_conversion(value, type):
         return c_long(value)
     elif type == "Float":
         return c_float(value)
-    elif type == "String":
+    elif type in ["String", "File"]:
         return c_str(value)
     elif type == "List":
         return c_list(value)

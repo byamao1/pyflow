@@ -4,9 +4,9 @@
 # @Author  : Tom
 
 
-def func(file_path, col_axis_map, window_config, loop_n):
+def func(file_path, axis_col_map, window_config, loop_n):
     """
-    :params: file_path,col_axis_map,window_config,loop_n
+    :params: file_path,axis_col_map,window_config,loop_n
     :ptypes: File,Json,Json,Int
     :returns: out
     :rtype: Json
@@ -28,13 +28,14 @@ def func(file_path, col_axis_map, window_config, loop_n):
     if offset + window_len >= len(df):
         return {}
     df = df[offset:offset + window_len]
-    return {k: df[v].tolist() for k, v in col_axis_map.items()}
+    df = df.fillna(0)  # Fill nan
+    return {k: df[v].tolist() for k, v in axis_col_map.items()}
 
 
 if __name__ == '__main__':
     file_path = "../data/ts_data.xlsx"
-    col_axis_map = {'x': 'id', 'y': 'x'}
+    axis_col_map = {'x': 'id', 'y': 'x'}
     window_config = {"window_len": 1000, "shift_len": 30}
     for i in range(2):
-        data = func(file_path, col_axis_map, window_config, loop_n=i)
+        data = func(file_path, axis_col_map, window_config, loop_n=i)
         print(data)

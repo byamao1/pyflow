@@ -4,9 +4,9 @@
 # @Author  : Tom
 
 
-def func(db_config, sql, col_axis_map, window_config, loop_n):
+def func(db_config, sql, axis_col_map, window_config, loop_n):
     """
-    :params: db_config,sql,col_axis_map,window_config,loop_n
+    :params: db_config,sql,axis_col_map,window_config,loop_n
     :ptypes: Json,String,Json,Json,Int
     :returns: out
     :rtype: Json
@@ -26,7 +26,8 @@ def func(db_config, sql, col_axis_map, window_config, loop_n):
     conn.close()
     if len(df) < window_config['window_len']:
         return {}
-    return {k: df[v].tolist() for k, v in col_axis_map.items()}
+    df = df.fillna(0)  # Fill nan
+    return {k: df[v].tolist() for k, v in axis_col_map.items()}
 
 
 def fft(data: dict):
@@ -65,8 +66,8 @@ if __name__ == '__main__':
                  }
 
     sql = "select id, x from ts_data"
-    col_axis_map = {'x': 'id', 'y': 'x'}
+    axis_col_map = {'x': 'id', 'y': 'x'}
     window_config = {"window_len": 1000, "shift_len": 30}
     for i in range(10):
-        data = func(db_config, sql, col_axis_map, window_config, loop_n=i)
+        data = func(db_config, sql, axis_col_map, window_config, loop_n=i)
         fft(data)
