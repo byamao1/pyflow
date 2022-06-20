@@ -27,7 +27,10 @@ def func(db_config, sql, axis_col_map, window_config, loop_n):
     if len(df) < window_config['window_len']:
         return {}
     df = df.fillna(0)  # Fill nan
-    return {k: df[v].tolist() for k, v in axis_col_map.items()}
+    out = {k: df[v].tolist() for k, v in axis_col_map.items()}
+    if 'x' not in out.keys():
+        out['x'] = list(range(len(df)))
+    return out
 
 
 def fft(data: dict):
