@@ -81,7 +81,7 @@ class TestFBPRunner(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        repository = fbp.repository()
+        repository = fbp.FlowRepository()
         repository.register("nodespec", "flow.cli", cli_spec)
         repository.register("nodespec", "flow.rest", rest_spec)
         repository.register(

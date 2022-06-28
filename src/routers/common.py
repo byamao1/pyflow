@@ -22,7 +22,7 @@ common_router = APIRouter(tags=["Common"], )
 @common_router.get("/nodestree")
 def nodestree():
     tree = list()
-    repository = fbp.repository()
+    repository = fbp.NodeRepository()
     node_specs = repository.get("nodespec")
 
     for k, v in node_specs.iteritems():
@@ -76,7 +76,7 @@ def _inset_node(parent, node, path):
 
 @common_router.get("/nodes")
 def nodes():
-    repository = fbp.repository()
+    repository = fbp.NodeRepository()
     node_specs = repository.get("nodespec")
 
     if not node_specs:
@@ -93,28 +93,28 @@ def nodes():
 
 @common_router.post("/nodes")
 def nodes(node: dict):
-    repository = fbp.repository()
+    repository = fbp.NodeRepository()
     repository.register("nodespec", node["id"], node)
     return node
 
 
 @common_router.get("/nodes/{node_id}")
 def get_node(node_id):
-    repository = fbp.repository()
+    repository = fbp.NodeRepository()
     node = repository.get("nodespec", node_id)
     return node
 
 
 @common_router.delete("/nodes/{node_id}")
 def del_node(node_id):
-    repository = fbp.repository()
+    repository = fbp.NodeRepository()
     repository.unregister("nodespec", node_id)
     return {'success': True}
 
 
 @common_router.put("/nodes/{node_id}")
 def update_node(node_id, node: dict):
-    repository = fbp.repository()
+    repository = fbp.NodeRepository()
     # TODO Valude the node here
     repository.register("nodespec", node_id, node)
     return node
@@ -122,7 +122,7 @@ def update_node(node_id, node: dict):
 
 @common_router.get("/flows")
 def get_flows():
-    repository = fbp.repository()
+    repository = fbp.FlowRepository()
 
     flows = repository.get("flow")
     if flows is None:
@@ -134,14 +134,14 @@ def get_flows():
 
 @common_router.post("/flows")
 def add_flows(flow: dict):
-    repository = fbp.repository()
+    repository = fbp.FlowRepository()
     repository.register("flow", flow["id"], flow)
     return flow
 
 
 @common_router.get("/flows/{node_id}")
 def get_flow(node_id):
-    repository = fbp.repository()
+    repository = fbp.FlowRepository()
     node = repository.get("flow", node_id)
     return node
 
@@ -173,7 +173,7 @@ def runflow(flow_spec: dict):
 @common_router.post("/dumprepo")
 def dumprepo(data: dict):
     try:
-        repository = fbp.repository()
+        repository = fbp.FlowRepository()
         repository.dumps(data["path"])
         return data
     except Exception as e:
@@ -183,7 +183,7 @@ def dumprepo(data: dict):
 @common_router.post("/loadrepo")
 def loadrepo(data: dict):
     try:
-        repository = fbp.repository()
+        repository = fbp.FlowRepository()
         repository.loads(data["path"])
         return data
     except Exception as e:

@@ -84,7 +84,7 @@ class TestFBPRepository(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        repository = fbp.repository()
+        repository = fbp.NodeRepository()
         repository.register("nodespec", "flow.cli", cli_spec)
         repository.register("nodespec", "flow.rest", rest_spec)
         repository.register(
@@ -102,7 +102,7 @@ class TestFBPRepository(unittest.TestCase):
 
     #@unittest.skip("")
     def test_respository1(self):
-        repo = fbp.repository()
+        repo = fbp.FlowRepository()
 
         anode = create_node("flow.cli", "myflow.command", "command")
         bnode = create_node("flow.line_breaker",
@@ -123,7 +123,7 @@ class TestFBPRepository(unittest.TestCase):
         print(repo.domains())
 
     def test_respository2(self):
-        repo = fbp.repository()
+        repo = fbp.FlowRepository()
 
         anode = create_node("flow.rest", "myflow.rest", "rest")
 
@@ -141,12 +141,12 @@ class TestFBPRepository(unittest.TestCase):
 
     #@unittest.skip("")
     def test_respository3(self):
-        repo = fbp.repository()
+        repo = fbp.FlowRepository()
         print(repo.dumps("./repo.json"))
 
     #@unittest.skip("")
     def test_respository4(self):
-        repo = fbp.repository()
+        repo = fbp.FlowRepository()
         repo.loads("./repo.json")
 
         anode = create_node("flow.rest", "myflow.rest", "rest")

@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-from config.path_config import REPO_PATH
+from config.path_config import Flow_REPO_PATH, NODE_REPO_PATH
 
 
 def singleton(class_):
@@ -80,10 +80,10 @@ class IMRepo(BaseRepo):
 
 class SqliteRepo(BaseRepo):
 
-    def __init__(self):
+    def __init__(self, repo_path):
         BaseRepo.__init__(self)
         # TODO : config the db name here
-        self._conn = sqlite3.connect(REPO_PATH, check_same_thread=False)
+        self._conn = sqlite3.connect(repo_path, check_same_thread=False)
         self._domains = set()
 
     def register(self, domain, key, value):
@@ -144,10 +144,49 @@ class SqliteRepo(BaseRepo):
 
 
 @singleton
-class repository(object):
+class NodeRepository(object):
     # a default Sqlite repo is use, need read configuration
     # to use different DB for repo
-    _repo = SqliteRepo()
+    _repo = SqliteRepo(NODE_REPO_PATH)
+
+    def register(self, domain, key, value):
+        return self._repo.register(domain, key, value)
+
+    def unregister(self, domain, key):
+        return self._repo.unregister(domain, key)
+
+    def get(self, domain, key=None):
+        return self._repo.get(domain, key)
+
+    def load(self, repo):
+        self._repo = repo
+
+    def domains(self):
+        return self._repo.domains()
+
+    def clean(self):
+        return self._repo.clean()
+
+    def dumps(self, path):
+        repo = dict()
+        for domain in self.domains():
+            repo[domain] = self.get(domain)
+
+        with open(path, "w") as f:
+            f.write(json.dumps(repo, indent=2))
+
+    def loads(self, path):
+        self.clean()
+        with open(path, "r") as f:
+            repo = json.loads(f.read())
+            for domain, domain_value in repo.iteritems():
+                for key, value in domain_value.iteritems():
+                    self.register(domain, key, value)
+
+
+@singleton
+class FlowRepository(object):
+    _repo = SqliteRepo(Flow_REPO_PATH)
 
     def register(self, domain, key, value):
         return self._repo.register(domain, key, value)

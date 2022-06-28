@@ -45,7 +45,7 @@ def load_node_spec():
                 spec = nodemaker.create_node_spec(f.read())
                 records.append(json.dumps(spec))
 
-    repository = fbp.repository()
+    repository = fbp.FlowRepository()
     for r in records:
         node = json.loads(r)
         repository.register("nodespec", node["id"], node)

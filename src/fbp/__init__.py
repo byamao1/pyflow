@@ -8,15 +8,14 @@ from config.constants import EXEC_MODE_STREAMING
 from config.log_config import log
 from fbp.node import Node
 from fbp.flow import Flow
-from fbp.repository import repository
-
+from fbp.repository import FlowRepository, NodeRepository
 
 __version_info__ = (0, 0, 1)
 __version__ = ".".join(map(str, __version_info__))
 
 
 def create_node(spec_id, id, name):
-    spec = repository().get("nodespec", spec_id)
+    spec = NodeRepository().get("nodespec", spec_id)
 
     if spec is None:
         raise Exception("No such node specification {}".format(spec_id))
