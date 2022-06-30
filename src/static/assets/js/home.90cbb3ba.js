@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["home"],{"4e42":function(e,n,t){"use strict";t.r(n);t("ac1f"),t("5319");var r,p,a={name:"Redirect",props:{path:String},render:function(e){return this.$router.replace(this.path),e()}},o=a,u=t("2877"),c=Object(u["a"])(o,r,p,!1,null,null,null);n["default"]=c.exports}}]);
