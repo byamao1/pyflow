@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      function debb(arr) {
+        var hash = Object.create(null),
+          i = arr.length,
+          key,
+          res = [];
+        while (i--) {
+          console.log('i',i);
+          key = arr[i];
+          if (hash[key]) continue;
+          hash[key] = 1;
+          res.push(key);
+        }
+        return res;
+      }
+
+      console.log(debb(['a','b']))
+
+      // var bind = function (fn, ctx) {
+      //   return function () {
+      //     console.log('arg', arguments);
+      //     return fn.apply(ctx, arguments);
+      //   };
+      // };
+
+      // function d(a, b) {
+      //   return a + b;
+      // }
+
+      // console.log(bind(d, null)(1, 2));
+
+      // var temp = {
+      //   num: 1,
+      //   add() {
+      //     this.num++;
+      //   }
+      // };
+      // var target = Object.create(temp);
+      // temp.show = function () {
+      //   console.log('num', this.num);
+      // };
+      // target.add();
+      // target.show();
+
+      // function a() {
+      //   'use strict';
+
+      //   alert(this);
+      // }
+      // a();
+
+      // var MyClass = function () {
+      //   this.name = 'sven';
+      //   var srr = [];
+      //   srr.name = 'anne';
+      //   return srr;
+      // };
+      // var obj = new MyClass();
+      // alert(obj.name);
+    </script>
+  </body>
+</html>
