@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.requests import Request
 
 import os
@@ -14,6 +15,7 @@ from routers.ds import ds_router
 from routers.common import common_router
 
 app = FastAPI()
+app.add_middleware(GZipMiddleware, minimum_size=1000)  # Open gzip compress response
 app.include_router(ds_router)
 app.include_router(common_router)
 
